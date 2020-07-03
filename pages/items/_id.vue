@@ -1,21 +1,17 @@
 <template>
-  <div>
+  <div class="single-item">
     <app-container>
-      <transition name="fade">
-        <app-popup v-if="isPopupShown">
-          <app-editing-item-form />
-        </app-popup>
-      </transition>
-      <app-shopping-list />
+      <h1 class="single-item__heading">Purchase № {{ currentItem.id }}</h1>
+      <p class="single-item__text">Name: {{ currentItem.name }}</p>
+      <p class="single-item__text">Price: {{ currentItem.price }} $</p>
+      <p class="single-item__text">Date: {{ currentItem.date }}</p>
+      <p class="single-item__text">Additional info and actions...</p>
     </app-container>
   </div>
 </template>
 
 <script>
 import Container from '@/components/shared/Container';
-import ShoppingList from '@/components/blocks/ShoppingList';
-import Popup from '@/components/service/Popup';
-import EditingItemForm from '@/components/blocks/EditingItemForm';
 export default {
   data() {
     return {
@@ -57,16 +53,38 @@ export default {
   },
   components: {
     'app-container': Container,
-    'app-shopping-list': ShoppingList,
-    'app-popup': Popup,
-    'app-editing-item-form': EditingItemForm,
   },
   computed: {
-    isPopupShown() {
-      return this.$store.getters['popup/getPopupVisibility'];
+    currentItem() {
+      return this.$store.getters['shopping-list/getCurrentSingleItem'];
     },
+  },
+  async fetch({ store, route, error }) {
+    await store
+      .dispatch('shopping-list/getSingleItem', { id: route.params.id })
+      .catch((e) => {
+        error({ statusCode: 404, message: 'Item not found' });
+      });
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.single-item {
+  color: #fff;
+  margin: 30px;
+}
+
+.single-item__heading {
+  margin-bottom: 30px;
+}
+
+.single-item__text {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.single-item__text:last-of-type {
+  margin-bottom: 0;
+}
+</style>
